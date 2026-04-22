@@ -23,7 +23,7 @@ func NewGame() *Game {
 	return &Game{
 		snake:     []Point{{X: 10, Y: 10}, {X: 9, Y: 10}, {X: 8, Y: 10}},
 		direction: Point{X: 1, Y: 0},
-		food:      Point{X: 20, Y: 20},
+		food:      Point{X: 13, Y: 13},
 	}
 }
 
@@ -39,7 +39,7 @@ func (g *Game) Update() error {
 	case ebiten.IsKeyPressed(ebiten.KeyArrowRight):
 		g.direction = Point{X: 1, Y: 0}
 	}
-	// food: Point{X: rand.Intn(30), Y: rand.Intn(30)}
+
 	if g.ticker%10 == 0 {
 		head := g.snake[0]
 		newHead := Point{
@@ -47,8 +47,20 @@ func (g *Game) Update() error {
 			Y: head.Y + g.direction.Y,
 		}
 
+		if newHead.X < 0 || newHead.X >= 15 || newHead.Y < 0 || newHead.Y >= 15 {
+			*g = *NewGame()
+			return nil
+		}
+
+		for _, part := range g.snake {
+			if part == newHead {
+				*g = *NewGame()
+				return nil
+			}
+		}
+
 		if newHead == g.food {
-			g.food = Point{X: rand.Intn(30), Y: rand.Intn(30)}
+			g.food = Point{X: rand.Intn(15), Y: rand.Intn(15)}
 			g.snake = append([]Point{newHead}, g.snake...)
 		} else {
 			g.snake = append([]Point{newHead}, g.snake[:len(g.snake)-1]...)
@@ -68,7 +80,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return 600, 600
+	return 300, 300
 }
 
 func main() {
